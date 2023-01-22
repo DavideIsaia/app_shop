@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import './screens/products_overview_screen.dart';
 import './screens/product_detail_screen.dart';
 import 'package:app_shop/providers/products.dart';
-import './providers/products.dart';
+import './providers/cart.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,8 +11,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // solo il widget col notifier provider viene ricostruito quando qualcosa cambia nei dati, e non l'intera app
-    return ChangeNotifierProvider(
-      create: (ctx) => Products(), // create se versione provider > 3, altrimenti builder
+    return MultiProvider( // con multiprovider nel main, tutto ciò che è all'interno viene reso visibile a tutta l'app
+      providers: [
+        ChangeNotifierProvider(
+          create: (ctx) => Products(),
+        ), // create se versione provider > 3, altrimenti builder
+        ChangeNotifierProvider(
+          create: (ctx) => Cart(),
+        ),
+      ],
       child: MaterialApp(
         title: 'MyShop',
         theme: ThemeData(
@@ -22,7 +29,7 @@ class MyApp extends StatelessWidget {
         ),
         home: ProductsOverviewScreen(),
         routes: {
-          ProductDetailScreen.routeName:(context) => ProductDetailScreen(),
+          ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
         },
       ),
     );
