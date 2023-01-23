@@ -44,11 +44,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
+      if (_imageUrlController.text.isEmpty ||
+          !_imageUrlController.text.startsWith('http') ||
+          (!_imageUrlController.text.endsWith('.png') &&
+              !_imageUrlController.text.endsWith('.jpg'))) {
+        return;
+      }
       setState(() {});
     }
   }
 
   void _saveForm() {
+    final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
     _form.currentState.save();
   }
 
@@ -77,6 +87,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     FocusScope.of(context).requestFocus(
                         _priceFocusNode); //premendo avanti passa il focus dal primo input al secondo (perchè l'input seguente ha la proprietà focusNode)
                   },
+                  validator: (userInputValue) {
+                    if (userInputValue.isEmpty) {
+                      return "Inserisci un nome per il prodotto";
+                    }
+                    return null;
+                  },
                   onSaved: ((userInputValue) {
                     _editedProduct = Product(
                       id: null,
@@ -95,6 +111,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_descriptionFocusNode);
                   },
+                  validator: (userInputValue) {
+                    if (userInputValue.isEmpty) {
+                      return "Inserisci un prezzo per il prodotto";
+                    }
+                    if (double.tryParse(userInputValue) == null) {
+                      return "Inserisci un numero valido";
+                    }
+                    if (double.parse(userInputValue) <= 0) {
+                      return "Inserisci un numero maggiore di zero";
+                    }
+                    return null;
+                  },
                   onSaved: ((userInputValue) {
                     _editedProduct = Product(
                       id: null,
@@ -110,6 +138,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
                   focusNode: _descriptionFocusNode,
+                  validator: (userInputValue) {
+                    if (userInputValue.isEmpty) {
+                      return "Inserisci una descrizione per il prodotto";
+                    }
+                    if (userInputValue.length < 10) {
+                      return "La descrizione deve essere di almeno 10 caratteri";
+                    }
+                    return null;
+                  },
                   onSaved: ((userInputValue) {
                     _editedProduct = Product(
                       id: null,
@@ -146,13 +183,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
-                          decoration: InputDecoration(labelText: 'Image URL'),
+                          decoration:
+                              InputDecoration(labelText: 'URL immagine'),
                           keyboardType: TextInputType.url,
                           textInputAction: TextInputAction.done,
                           controller: _imageUrlController,
                           focusNode: _imageUrlFocusNode,
                           onFieldSubmitted: (_) {
                             _saveForm();
+                          },
+                          validator: (userInputValue) {
+                            if (userInputValue.isEmpty) {
+                              return "Inserisci un'immagine per il prodotto";
+                            }
+                            if (!userInputValue.startsWith('http')) {
+                              return "Inserisci un URL valido";
+                            }
+                            if (!userInputValue.endsWith('.png') &&
+                                !userInputValue.endsWith('.jpg')) {
+                              return "Inserisci un URL immagine valido";
+                            }
+                            return null;
                           },
                           onSaved: ((userInputValue) {
                             _editedProduct = Product(
