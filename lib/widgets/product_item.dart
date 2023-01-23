@@ -53,6 +53,21 @@ class ProductItem extends StatelessWidget {
               icon: Icon(Icons.shopping_cart),
               onPressed: () {
                 cart.addItem(product.id, product.price, product.title);
+                // (scaffold.of se versione flutter <2)non può essere usato nello stesso widget tree di un altro scaffold, ma al più vicino scaffold che controlla la pagina in cui ci troviamo, in questo caso products overview
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    'Prodotto aggiunto al carrello!',
+                    // textAlign: TextAlign.center,
+                  ),
+                  duration: Duration(milliseconds: 1800),
+                  action: SnackBarAction(
+                    label: 'ANNULLA',
+                    onPressed: () {
+                      cart.removeSingleItem(product.id);
+                    },
+                  ),
+                ));
               },
               color: Theme.of(context).accentColor,
             ),
