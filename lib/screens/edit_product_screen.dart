@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/product.dart';
+import '../providers/products.dart';
 import '../widgets/user_product_item.dart';
 import '../widgets/app_drawer.dart';
 
@@ -23,12 +24,43 @@ class _EditProductScreenState extends State<EditProductScreen> {
     description: "",
     imageUrl: "",
   );
+  var _initValues = {
+    "title": "",
+    "description": "",
+    "price": "",
+    "imageUrl": "",
+  };
+  var _isInit = true;
+
+  // url di esempio
+  //  https://exnovocomputer.it/media/catalog/product/cache/8f899806bc2bc349a27efdf98f21e1e5/h/p/hp-250-g7-1.png
 
   @override
   void initState() {
-    _imageUrlFocusNode.addListener(_updateImageUrl);
     // serve per non perdere l'anteprima dell'img quando si sposta il focus nei form
+    _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        // riassegno questi valori all'edited product vuoto che abbiamo all'inizio
+        _editedProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
+        _initValues = {
+          "title": _editedProduct.title,
+          "description": _editedProduct.description,
+          "price": _editedProduct.price.toString(),
+          "imageUrl": "", //perchè se ne occupa il controller per le img
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -45,7 +77,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
       if (_imageUrlController.text.isEmpty ||
-          !_imageUrlController.text.startsWith('http') ||
+          !_imageUrlController.text.startsWith('https') ||
           (!_imageUrlController.text.endsWith('.png') &&
               !_imageUrlController.text.endsWith('.jpg'))) {
         return;
@@ -60,13 +92,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState.save();
+    // se esiste fa l'update, altrimenti aggiunge un prodotto alla lista
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Modifica prodotto'),
+        title: Text('Aggiungi prodotto al catalogo'),
         actions: [
           IconButton(
             onPressed: _saveForm,
@@ -81,6 +121,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             child: ListView(
               children: [
                 TextFormField(
+                  initialValue: _initValues['title'],
                   decoration: InputDecoration(labelText: 'Nome'),
                   textInputAction: TextInputAction.next,
                   onFieldSubmitted: (_) {
@@ -95,7 +136,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   },
                   onSaved: ((userInputValue) {
                     _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                       title: userInputValue,
                       description: _editedProduct.description,
                       price: _editedProduct.price,
@@ -104,6 +146,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   }),
                 ),
                 TextFormField(
+                  initialValue: _initValues['price'],
                   decoration: InputDecoration(labelText: 'Prezzo'),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
@@ -125,7 +168,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   },
                   onSaved: ((userInputValue) {
                     _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                       title: _editedProduct.title,
                       description: _editedProduct.description,
                       price: double.parse(userInputValue),
@@ -134,6 +178,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   }),
                 ),
                 TextFormField(
+                  initialValue: _initValues['description'],
                   decoration: InputDecoration(labelText: 'Descrizione'),
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
@@ -149,7 +194,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   },
                   onSaved: ((userInputValue) {
                     _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                       title: _editedProduct.title,
                       description: userInputValue,
                       price: _editedProduct.price,
@@ -196,7 +242,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             if (userInputValue.isEmpty) {
                               return "Inserisci un'immagine per il prodotto";
                             }
-                            if (!userInputValue.startsWith('http')) {
+                            if (!userInputValue.startsWith('https')) {
                               return "Inserisci un URL valido";
                             }
                             if (!userInputValue.endsWith('.png') &&
@@ -207,7 +253,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           },
                           onSaved: ((userInputValue) {
                             _editedProduct = Product(
-                              id: null,
+                              id: _editedProduct.id,
+                              isFavorite: _editedProduct.isFavorite,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               price: _editedProduct.price,
