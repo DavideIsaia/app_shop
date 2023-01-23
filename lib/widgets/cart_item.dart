@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, missing_return
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart.dart';
@@ -36,6 +38,26 @@ class CartItem extends StatelessWidget {
         ),
       ),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: ((ctx) => AlertDialog(
+                  title: Text('Sei sicuro?'),
+                  content: Text('Vuoi rimuovere il prodotto dal carrello?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop(false);
+                        },
+                        child: Text('No')),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop(true);
+                        },
+                        child: Text('Sì')),
+                  ])),
+        );
+      },
       // nel nostro caso setto solo la direzione di swipe da destra e blocco quella di sinistra quindi setto solo una direction
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeItem(productId);

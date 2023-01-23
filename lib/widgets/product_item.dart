@@ -1,3 +1,5 @@
+// ignore_for_file: sort_child_properties_last
+
 import 'package:app_shop/providers/product.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
