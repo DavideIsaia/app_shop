@@ -8,6 +8,7 @@ import './edit_product_screen.dart';
 class UserProductsScreen extends StatelessWidget {
   static const routeName = '/user-products';
 
+  //  metodo che fa sì che trascinando verso il basso, ricarichi i dati
   Future<void> _refreshProducts(BuildContext context) async {
     await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
   }
