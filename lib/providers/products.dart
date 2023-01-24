@@ -58,7 +58,7 @@ class Products with ChangeNotifier {
     return _items.firstWhere((element) => element.id == id);
   }
 
-  Future<void> addProduct(Product product) {
+  /*Future<void> addProduct(Product product) {
     const url =
         'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products.json';
     return http
@@ -86,6 +86,35 @@ class Products with ChangeNotifier {
       print(error);
       throw error;
     });
+  }*/
+
+// se si mette async, non c'è più bisogno mettere return prima di http, ma si mette await
+  Future<void> addProduct(Product product) async {
+    const url =
+        'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products.json';
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFavorite': product.isFavorite
+          }));
+      final newProduct = Product(
+        id: json.decode(response.body)['name'],
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl,
+      );
+      _items.add(newProduct);
+      // _items.insert(0, newProduct); // lo inserisce all'inizio della lista
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
   }
 
   void updateProduct(String id, Product newProduct) {

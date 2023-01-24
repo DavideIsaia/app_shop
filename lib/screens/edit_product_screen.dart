@@ -87,6 +87,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
+  /* metodo senza async e await e con catch error
   void _saveForm() {
     final isValid = _form.currentState.validate();
     if (!isValid) {
@@ -127,6 +128,53 @@ class _EditProductScreenState extends State<EditProductScreen> {
         });
         Navigator.of(context).pop();
       });
+    }
+    // Navigator.of(context).pop();
+  }*/
+
+  Future<void> _saveForm() async {
+    final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
+    _form.currentState.save();
+    setState(() {
+      _isLoading = true;
+    });
+    // se esiste fa l'update, altrimenti aggiunge un prodotto alla lista
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pop();
+    } else {
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog<Null>(
+          context: context,
+          builder: ((ctx) => AlertDialog(
+                title: Text('Errore!'),
+                content: Text(error.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              )),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      }
     }
     // Navigator.of(context).pop();
   }
