@@ -120,8 +120,8 @@ class Products with ChangeNotifier {
 
 // se si mette async, non c'è più bisogno mettere return prima di http, ma si mette await
   Future<void> addProduct(Product product) async {
-    const url =
-        'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products.json';
+    final url =
+        'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken';
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -151,7 +151,7 @@ class Products with ChangeNotifier {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
       final url =
-          'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json';
+          'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken';
       await http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -166,7 +166,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url =
-        'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json';
+        'https://david-shop-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
     // proviamo il delete ottimistico senza aspettare la response
