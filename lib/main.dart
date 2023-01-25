@@ -9,6 +9,7 @@ import './providers/orders.dart';
 import './screens/orders_screen.dart';
 import './screens/user_products_screen.dart';
 import './screens/edit_product_screen.dart';
+import './providers/auth.dart';
 import './screens/auth_screen.dart';
 
 void main() => runApp(MyApp());
@@ -20,6 +21,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       // con multiprovider nel main, tutto ciò che è all'interno viene reso visibile a tutta l'app
       providers: [
+        ChangeNotifierProvider(
+          create: (ctx) => Auth(),
+        ),
         ChangeNotifierProvider(
           create: (ctx) => Products(),
         ), // create se versione provider > 3, altrimenti builder
