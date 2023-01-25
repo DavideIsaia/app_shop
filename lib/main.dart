@@ -19,38 +19,43 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // solo il widget col notifier provider viene ricostruito quando qualcosa cambia nei dati, e non l'intera app
     return MultiProvider(
-      // con multiprovider nel main, tutto ciò che è all'interno viene reso visibile a tutta l'app
-      providers: [
-        ChangeNotifierProvider(
-          create: (ctx) => Auth(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => Products(),
-        ), // create se versione provider > 3, altrimenti builder
-        ChangeNotifierProvider(
-          create: (ctx) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => Orders(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'MyShop',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          accentColor: Colors.amber,
-          fontFamily: 'Lato',
-        ),
-        home: AuthScreen(),
-        routes: {
-          AuthScreen.routeName: (context) => AuthScreen(),
-          ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
-          CartScreen.routeName: (context) => CartScreen(),
-          OrdersScreen.routeName: (context) => OrdersScreen(),
-          UserProductsScreen.routeName: (context) => UserProductsScreen(),
-          EditProductScreen.routeName: (context) => EditProductScreen(),
-        },
-      ),
-    );
+        // con multiprovider nel main, tutto ciò che è all'interno viene reso visibile a tutta l'app
+        providers: [
+          // create e update(con proxy) se versione provider > 3, altrimenti builder
+          ChangeNotifierProvider(
+            create: (ctx) => Auth(),
+          ),
+          ChangeNotifierProxyProvider<Auth, Products>(
+            // create: (ctx) => Products(),
+            update: (ctx, auth, previousProducts) => Products(auth.token,
+                previousProducts == null ? [] : previousProducts.items),
+          ),
+          ChangeNotifierProvider(
+            create: (ctx) => Cart(),
+          ),
+          ChangeNotifierProvider(
+            create: (ctx) => Orders(),
+          ),
+        ],
+        child: Consumer<Auth>(
+          builder: (context, authValue, _) => MaterialApp(
+            title: "David's Shop",
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              accentColor: Colors.amber,
+              fontFamily: 'Lato',
+            ),
+            // se l'user è già autorizzato allora mostra la schermata prodotti, altrimenti la login screen
+            home: authValue.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            routes: {
+              AuthScreen.routeName: (context) => AuthScreen(),
+              ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
+              CartScreen.routeName: (context) => CartScreen(),
+              OrdersScreen.routeName: (context) => OrdersScreen(),
+              UserProductsScreen.routeName: (context) => UserProductsScreen(),
+              EditProductScreen.routeName: (context) => EditProductScreen(),
+            },
+          ),
+        ));
   }
 }

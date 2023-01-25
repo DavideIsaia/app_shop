@@ -55,7 +55,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('David Shop'),
+        title: Text("David's Shop"),
         actions: [
           PopupMenuButton(
               onSelected: (FilterOptions selectedValue) {
