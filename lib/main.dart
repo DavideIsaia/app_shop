@@ -9,6 +9,7 @@ import './providers/orders.dart';
 import './screens/orders_screen.dart';
 import './screens/user_products_screen.dart';
 import './screens/edit_product_screen.dart';
+import './screens/auth_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // solo il widget col notifier provider viene ricostruito quando qualcosa cambia nei dati, e non l'intera app
-    return MultiProvider( // con multiprovider nel main, tutto ciò che è all'interno viene reso visibile a tutta l'app
+    return MultiProvider(
+      // con multiprovider nel main, tutto ciò che è all'interno viene reso visibile a tutta l'app
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => Products(),
@@ -35,8 +37,9 @@ class MyApp extends StatelessWidget {
           accentColor: Colors.amber,
           fontFamily: 'Lato',
         ),
-        home: ProductsOverviewScreen(),
+        home: AuthScreen(),
         routes: {
+          AuthScreen.routeName: (context) => AuthScreen(),
           ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
           CartScreen.routeName: (context) => CartScreen(),
           OrdersScreen.routeName: (context) => OrdersScreen(),
