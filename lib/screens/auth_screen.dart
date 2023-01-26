@@ -110,29 +110,34 @@ class _AuthCardState extends State<AuthCard>
   final _passwordController = TextEditingController();
   AnimationController _animationController;
   Animation<Size> _heightAnimation;
+  Animation<double> _opacityAnimation;
 
-  // PER ANIMAZIONE SETTATA MANUALMENTE 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _animationController = AnimationController(
-  //     vsync: this,
-  //     duration: Duration(milliseconds: 300),
-  //   );
-  //   _heightAnimation = Tween<Size>(
-  //           begin: Size(double.infinity, 260), end: Size(double.infinity, 320))
-  //       .animate(CurvedAnimation(
-  //     parent: _animationController,
-  //     curve: Curves.fastOutSlowIn,
-  //   ));
-  //   // _heightAnimation.addListener(() => setState(() {}));
-  // }
+  // PER ANIMAZIONE SETTATA MANUALMENTE
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _heightAnimation = Tween<Size>(
+            begin: Size(double.infinity, 260), end: Size(double.infinity, 320))
+        .animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.fastOutSlowIn,
+    ));
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    ));
+    // _heightAnimation.addListener(() => setState(() {}));
+  }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   _animationController.dispose();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -261,19 +266,31 @@ class _AuthCardState extends State<AuthCard>
                     _authData['password'] = value;
                   },
                 ),
-                if (_authMode == AuthMode.Signup)
-                  TextFormField(
-                    enabled: _authMode == AuthMode.Signup,
-                    decoration: InputDecoration(labelText: 'Conferma Password'),
-                    obscureText: true,
-                    validator: _authMode == AuthMode.Signup
-                        ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Le passwords non corrispondono!';
+                // if (_authMode == AuthMode.Signup)
+                AnimatedContainer(
+                  constraints: BoxConstraints(
+                      // l'altezza viene settata a 60 min e 120 max, in base se siamo in login o reg
+                      minHeight: _authMode == AuthMode.Signup ? 60 : 0,
+                      maxHeight: _authMode == AuthMode.Signup ? 120 : 0),
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeIn,
+                  child: FadeTransition(
+                    opacity: _opacityAnimation,
+                    child: TextFormField(
+                      enabled: _authMode == AuthMode.Signup,
+                      decoration:
+                          InputDecoration(labelText: 'Conferma Password'),
+                      obscureText: true,
+                      validator: _authMode == AuthMode.Signup
+                          ? (value) {
+                              if (value != _passwordController.text) {
+                                return 'Le passwords non corrispondono!';
+                              }
                             }
-                          }
-                        : null,
+                          : null,
+                    ),
                   ),
+                ),
                 SizedBox(
                   height: 20,
                 ),
