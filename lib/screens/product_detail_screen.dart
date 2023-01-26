@@ -25,7 +25,12 @@ class ProductDetailScreen extends StatelessWidget {
             pinned:
                 true, //vuol dire che l'appbar non scrolla via ma diventa sticky top
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(loadedProduct.title),
+              title: Text(
+                loadedProduct.title,
+                style: TextStyle(
+                  backgroundColor: Colors.black54,
+                ),
+              ),
               background: Hero(
                 tag: loadedProduct.id,
                 child: Image.network(
