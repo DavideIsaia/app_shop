@@ -162,8 +162,9 @@ class _AuthCardState extends State<AuthCard> {
       }
       _showErrorDialog(errorMessage);
     } catch (error) {
-      const errorMessage = 'Autenticazione fallita, riprova più tardi';
-      _showErrorDialog(errorMessage);
+      throw error;
+      // const errorMessage = 'Autenticazione fallita, riprova più tardi';
+      // _showErrorDialog(errorMessage);
     }
 
     setState(() {

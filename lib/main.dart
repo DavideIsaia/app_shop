@@ -11,6 +11,7 @@ import './screens/user_products_screen.dart';
 import './screens/edit_product_screen.dart';
 import './providers/auth.dart';
 import './screens/auth_screen.dart';
+import './screens/splash_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -54,7 +55,16 @@ class MyApp extends StatelessWidget {
               fontFamily: 'Lato',
             ),
             // se l'user è già autorizzato allora mostra la schermata prodotti, altrimenti la login screen
-            home: authValue.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            home: authValue.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: authValue.tryAutoLogin(),
+                    builder: (context, autoLoginResult) =>
+                        autoLoginResult.connectionState ==
+                                ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
             routes: {
               AuthScreen.routeName: (context) => AuthScreen(),
               ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
